@@ -1,0 +1,2 @@
+description = "Implementation of auth flows, encryption, and security best practices."
+prompt = "@nexus_security_engineer {{args}}"

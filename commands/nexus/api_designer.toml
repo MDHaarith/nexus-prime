@@ -1,0 +1,2 @@
+description = "REST/GraphQL contract design, endpoint schemas, and versioning."
+prompt = "@nexus_api_designer {{args}}"

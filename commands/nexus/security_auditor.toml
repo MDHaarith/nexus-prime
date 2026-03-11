@@ -1,0 +1,2 @@
+description = "Vulnerability assessment, compliance checks, and threat modeling."
+prompt = "@nexus_security_auditor {{args}}"

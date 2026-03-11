@@ -1,0 +1,2 @@
+description = "Cloud-native infrastructure design and scaling strategies."
+prompt = "@nexus_cloud_architect {{args}}"

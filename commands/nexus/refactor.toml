@@ -1,0 +1,2 @@
+description = "Structural modernization, technical debt reduction, and pattern alignment."
+prompt = "@nexus_refactor {{args}}"

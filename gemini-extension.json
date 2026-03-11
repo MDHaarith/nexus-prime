@@ -1,0 +1,7 @@
+{
+  "name": "nexus-prime",
+  "version": "4.0.19",
+  "description": "Unified Ink Pro architecture with 28 domain-expert agents, context caching, model tiering, smart routing, execution bus, and a deterministic 12-phase workflow.",
+  "contextFileName": "GEMINI.md",
+  "agents": "agents"
+}

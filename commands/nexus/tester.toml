@@ -1,0 +1,2 @@
+description = "Unit, integration, and E2E test suite implementation."
+prompt = "@nexus_tester {{args}}"

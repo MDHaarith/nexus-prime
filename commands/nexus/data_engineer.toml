@@ -1,0 +1,2 @@
+description = "Data modeling, ETL pipelines, and query optimization."
+prompt = "@nexus_data_engineer {{args}}"

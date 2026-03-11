@@ -1,0 +1,2 @@
+description = "Migrations, indexing strategies, and DB administration."
+prompt = "@nexus_database_admin {{args}}"

@@ -1,0 +1,2 @@
+description = "Documentation, READMEs, and API references."
+prompt = "@nexus_technical_writer {{args}}"

@@ -1,0 +1,2 @@
+description = "Requirements engineering, PRD generation, and high-level technical direction."
+prompt = "@nexus_nexus_prime {{args}}"

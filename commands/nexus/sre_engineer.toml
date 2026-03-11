@@ -1,0 +1,2 @@
+description = "Reliability engineering, service auditing, and error budgeting."
+prompt = "@nexus_sre_engineer {{args}}"

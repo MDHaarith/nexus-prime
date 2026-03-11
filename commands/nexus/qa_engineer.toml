@@ -1,0 +1,2 @@
+description = "Regression testing, edge-case validation, and quality gates."
+prompt = "@nexus_qa_engineer {{args}}"

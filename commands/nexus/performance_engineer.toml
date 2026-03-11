@@ -1,0 +1,2 @@
+description = "Bottleneck identification, profiling, and latency optimization."
+prompt = "@nexus_performance_engineer {{args}}"

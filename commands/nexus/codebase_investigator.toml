@@ -1,0 +1,2 @@
+description = "Deep architectural mapping and dependency analysis."
+prompt = "@nexus_codebase_investigator {{args}}"

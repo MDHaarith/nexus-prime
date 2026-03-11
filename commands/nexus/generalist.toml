@@ -1,0 +1,2 @@
+description = "High-volume data processing and repetitive batch tasks."
+prompt = "@nexus_generalist {{args}}"

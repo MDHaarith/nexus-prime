@@ -1,0 +1,2 @@
+description = "Search visibility, metadata optimization, and web vitals."
+prompt = "@nexus_seo_specialist {{args}}"

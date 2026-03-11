@@ -1,0 +1,2 @@
+description = "Cross-cutting verification of phase outputs and project integrity."
+prompt = "@nexus_validation_agent {{args}}"

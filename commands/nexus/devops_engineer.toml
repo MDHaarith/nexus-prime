@@ -1,0 +1,2 @@
+description = "CI/CD pipelines, containerization (Docker/K8s), and IaC."
+prompt = "@nexus_devops_engineer {{args}}"

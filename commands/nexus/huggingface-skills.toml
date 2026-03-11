@@ -1,0 +1,2 @@
+description = "Specialist for Hub, Model, and Dataset integrations."
+prompt = "@nexus_huggingface_skills {{args}}"

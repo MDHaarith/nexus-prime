@@ -1,0 +1,2 @@
+description = "Meta-learning engine for self-upgrading the orchestration system."
+prompt = "@nexus_evolution_agent {{args}}"

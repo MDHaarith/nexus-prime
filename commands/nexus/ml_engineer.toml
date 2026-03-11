@@ -1,0 +1,2 @@
+description = "Model integration, training workflows, and AI feature development."
+prompt = "@nexus_ml_engineer {{args}}"

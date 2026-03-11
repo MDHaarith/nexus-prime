@@ -1,0 +1,2 @@
+description = "Technical copy, UI microcopy, and marketing content."
+prompt = "@nexus_copywriter {{args}}"

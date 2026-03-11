@@ -1,0 +1,2 @@
+description = "Handles parallel batching and high-throughput task routing."
+prompt = "@nexus_orchestrator_manager {{args}}"

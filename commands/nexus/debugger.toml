@@ -1,0 +1,2 @@
+description = "Root cause analysis and systematic defect investigation."
+prompt = "@nexus_debugger {{args}}"

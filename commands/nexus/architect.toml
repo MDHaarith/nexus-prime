@@ -1,0 +1,2 @@
+description = "System design, technology stack selection, and component boundaries."
+prompt = "@nexus_architect {{args}}"

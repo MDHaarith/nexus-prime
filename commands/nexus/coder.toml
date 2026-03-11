@@ -1,0 +1,2 @@
+description = "Primary feature implementation and logic development."
+prompt = "@nexus_coder {{args}}"
