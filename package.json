@@ -37,7 +37,7 @@
   },
   "scripts": {
     "dev": "tsx src/index.tsx",
-    "build": "esbuild src/index.tsx --bundle --platform=node --format=esm --external:react-devtools-core --outfile=dist/index.js",
+    "build": "esbuild src/index.tsx --bundle --platform=node --format=esm --outfile=dist/index.js",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -51,6 +51,7 @@
     "@types/node": "^20.11.24",
     "@types/react": "^18.2.61",
     "esbuild": "^0.20.1",
+    "react-devtools-core": "^4.28.5",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3"
   }
