@@ -56,9 +56,6 @@ Subagents are strictly required to use the `ask_user` tool for any ambiguity. Th
 ├── core/             # Orchestration logic (TypeScript)
 ├── types/            # Shared interfaces and types
 └── index.tsx         # Entry point
-/bin
-├── nexus-agent-wrapper.js # Universal Node.js agent wrapper
-└── nexus-*           # Agent-specific symlinks/scripts
 /skills               # Modular skill definitions
 /agents               # Agent persona definitions (Markdown)
 ```

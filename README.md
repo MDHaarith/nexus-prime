@@ -56,29 +56,6 @@ To install Nexus-Prime as a Gemini CLI extension, run:
 gemini extension install https://github.com/MDHaarith/nexus-prime
 ```
 
-## 📖 Usage
-
-Nexus-Prime provides a unified command set for the entire development team.
-
-```bash
-# Start a new autonomous build
-nexus-prime --objective "Develop a high-fidelity dashboard"
-
-# Run a specific agent for a surgical task
-nexus-coder --yolo "Optimize the data-fetching layer"
-
-# Audit security
-nexus-security-auditor --yolo "Check for vulnerabilities in src/core"
-```
-
-### The Agent Swarm
-Nexus-Prime features 28 specialized agents including `nexus-architect`, `nexus-coder`, `nexus-tester`, `nexus-sre-engineer`, and `nexus-performance-engineer`. Explore the full directory in [docs/AGENTS.md](docs/AGENTS.md).
-
-## 📊 Reliability & Performance
-- **Zero Latency Startup**: Pre-compiled production bundle executes in <30ms.
-- **Immutable State**: State management via Immer prevents corruption in parallel workflows.
-- **Validated Core**: Core orchestration modules are verified with 100% statement coverage.
-
 ## 🤝 Contributing
 We follow strict TypeScript standards and the Interactivity-First mandate. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 

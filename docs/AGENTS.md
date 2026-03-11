@@ -1,6 +1,6 @@
 # Nexus-Prime: Agent Directory
 
-Nexus-Prime v4.0 features a swarm of 28 specialized autonomous agents, each a domain expert in a specific area of the software development lifecycle. These agents are orchestrated by `nexus-prime` to complete complex, multi-phase tasks.
+Nexus-Prime v4.0 features a swarm of 28 specialized autonomous agents, each a domain expert in a specific area of the software development lifecycle.
 
 ## The 28 Specialized Agents
 
