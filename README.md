@@ -54,6 +54,26 @@ graph TD
 
 ---
 
+## 🛠️ Built-in Skills
+
+Nexus-Prime comes pre-equipped with a modular library of **Specialized Skills**. These skills provide the underlying logic and best practices that agents use to execute their tasks.
+
+### Core Capability Skills
+- **Automated Documentation**: Native ability to generate OpenAPI/Swagger specs, JSDoc/TypeDoc references, and maintain synchronized READMEs.
+- **CI/CD Integration**: Pre-configured workflows for GitHub Actions, Jenkins, and Docker-based deployment automation.
+- **Performance Optimization**: Advanced profiling, database query analysis, and multi-level caching strategies (Redis/CDN).
+- **Web Scraping**: High-fidelity extraction using Playwright/Puppeteer for dynamic content and Cheerio for static parsing.
+- **Code Investigation**: Deep AST-based mapping and dependency analysis for large-scale architecture recovery.
+
+### Agent-Specific Skills
+Each of the 28 agents has a dedicated skill definition (e.g., `nexus-architect/SKILL.md`) that defines its unique methodology:
+- **Architect Skill**: High-level component design and pattern selection.
+- **Security Skill**: Vulnerability scanning and secure coding enforcement.
+- **Tester Skill**: Comprehensive unit and E2E test implementation using Vitest.
+- **SRE Skill**: Reliability monitoring and incident response procedures.
+
+---
+
 ## 🤖 The Agent Swarm
 
 Nexus-Prime features 28 specialized autonomous agents, each a domain expert in a specific area of the software development lifecycle.
