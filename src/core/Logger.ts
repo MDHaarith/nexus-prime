@@ -20,6 +20,9 @@ export interface LogEntry {
 export class Logger {
   private static instance: Logger;
   private agentName: string = 'system';
+  private entries: LogEntry[] = [];
+  private listeners: Set<(entry: LogEntry) => void> = new Set();
+  private consoleOutputEnabled: boolean = process.env.NEXUS_CONSOLE_LOGS === '1';
 
   private constructor() {}
 
@@ -34,6 +37,27 @@ export class Logger {
     this.agentName = name;
   }
 
+  public setConsoleOutput(enabled: boolean): void {
+    this.consoleOutputEnabled = enabled;
+  }
+
+  public subscribe(listener: (entry: LogEntry) => void): () => void {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  public getEntries(): LogEntry[] {
+    return [...this.entries];
+  }
+
+  public reset(): void {
+    this.entries = [];
+    this.listeners.clear();
+    this.agentName = 'system';
+  }
+
   private log(level: LogLevel, message: string, data?: any, meta?: { phaseId?: string, taskId?: string, duration_ms?: number }): void {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
@@ -44,11 +68,18 @@ export class Logger {
       ...meta
     };
 
-    // Output structured JSON for SRE observability
-    if (level === LogLevel.ERROR) {
-      console.error(JSON.stringify(entry));
-    } else {
-      console.log(JSON.stringify(entry));
+    this.entries.push(entry);
+
+    if (this.consoleOutputEnabled) {
+      if (level === LogLevel.ERROR) {
+        console.error(JSON.stringify(entry));
+      } else {
+        console.log(JSON.stringify(entry));
+      }
+    }
+
+    for (const listener of this.listeners) {
+      listener(entry);
     }
   }
 

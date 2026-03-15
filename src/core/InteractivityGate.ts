@@ -1,22 +1,4 @@
-export interface QuestionOption {
-  label: string;
-  description: string;
-}
-
-export interface Question {
-  question: string;
-  header: string;
-  type: 'choice' | 'text' | 'yesno';
-  options?: QuestionOption[];
-  multiSelect?: boolean;
-  placeholder?: string;
-}
-
-export interface AskUserPayload {
-  questions: Question[];
-}
-
-export type UserAnswer = string | string[] | boolean | null;
+import type { AskUserPayload, UserAnswer } from '../types/index.js';
 
 export type PromptHandler = (payload: AskUserPayload) => Promise<UserAnswer[]>;
 

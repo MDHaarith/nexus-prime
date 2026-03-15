@@ -1,5 +1,5 @@
 import { TaskStore } from './TaskStore.js';
-import { Task, Phase, TaskReport } from '../types/index.js';
+import { Task, Phase, TaskReport, ExecutionMode } from '../types/index.js';
 import { Logger } from './Logger.js';
 
 export class Orchestrator {
@@ -17,26 +17,33 @@ export class Orchestrator {
   /**
    * Plans a new phase with the given tasks and execution mode.
    */
-  public planPhase(phaseId: string, name: string, tasks: Task[], execution_mode: 'parallel' | 'sequential' = 'sequential'): void {
+  public planPhase(phaseId: string, name: string, tasks: Task[], execution_mode: ExecutionMode = 'sequential', objective?: string): void {
     this.logger.info(`Planning phase ${phaseId}: ${name}`, { phaseId, taskCount: tasks.length });
+    const normalizedTasks = tasks.map((task: Task) => ({
+      ...task,
+      phase_id: phaseId
+    }));
     const phase: Phase = {
       id: phaseId,
       name,
       status: 'pending',
-      tasks,
-      execution_mode
+      tasks: normalizedTasks,
+      execution_mode,
+      objective
     };
     
     const state = this.store.getState();
     const currentPhases = state.phases || [];
-    this.store.setPhases([...currentPhases, phase]);
     
     // Ensure all tasks are in the master task list
     const currentTasks = state.tasks;
-    const newTasks = tasks.filter((t: Task) => !currentTasks.find((ct: Task) => ct.id === t.id));
+    const newTasks = normalizedTasks.filter((t: Task) => !currentTasks.find((ct: Task) => ct.id === t.id));
     if (newTasks.length > 0) {
       this.store.setTasks([...currentTasks, ...newTasks]);
     }
+
+    const updatedPhases = [...currentPhases, phase];
+    this.store.setPhases(updatedPhases);
   }
 
   /**
@@ -141,7 +148,8 @@ export class Orchestrator {
       agent: 'codebase_investigator',
       description: `Gather codebase context for task: ${task.description}`,
       status: 'pending',
-      dependencies: [...(task.dependencies || [])]
+      dependencies: [...(task.dependencies || [])],
+      phase_id: phaseId
     };
 
     const updatedTask = {
@@ -235,5 +243,16 @@ export class Orchestrator {
     if (state.current_phase) {
       await this.processNextTasks(state.current_phase);
     }
+  }
+
+  public getRunningTasks(phaseId: string): Task[] {
+    return this.store
+      .getState()
+      .tasks
+      .filter((task: Task) => task.phase_id === phaseId && task.status === 'running');
+  }
+
+  public async continuePhase(phaseId: string): Promise<void> {
+    await this.processNextTasks(phaseId);
   }
 }

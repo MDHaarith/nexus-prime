@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { OrchestrationState, Task, TaskStatus, TaskReport, Phase } from '../types/index.js';
+import { OrchestrationState, Task, TaskStatus, TaskReport, Phase, RunStatus } from '../types/index.js';
 
 export type StateListener = (state: OrchestrationState) => void;
 
@@ -23,7 +23,10 @@ export class TaskStore {
   }
 
   private updateState(recipe: (draft: OrchestrationState) => void): void {
-    this.state = produce(this.state, recipe);
+    this.state = produce(this.state, (draft) => {
+      recipe(draft);
+      draft.updated_at = new Date().toISOString();
+    });
     this.notify();
   }
 
@@ -36,6 +39,18 @@ export class TaskStore {
   public updateMetadata(key: string, value: any): void {
     this.updateState((draft: OrchestrationState) => {
       draft.metadata[key] = value;
+    });
+  }
+
+  public replaceMetadata(metadata: Record<string, unknown>): void {
+    this.updateState((draft: OrchestrationState) => {
+      draft.metadata = metadata;
+    });
+  }
+
+  public setRunStatus(status: RunStatus): void {
+    this.updateState((draft: OrchestrationState) => {
+      draft.run_status = status;
     });
   }
 
@@ -57,6 +72,25 @@ export class TaskStore {
     });
   }
 
+  public bumpTaskRetry(taskId: string): void {
+    this.updateState((draft: OrchestrationState) => {
+      const task = draft.tasks.find((candidate: Task) => candidate.id === taskId);
+      if (!task) {
+        return;
+      }
+      task.retry_count = (task.retry_count || 0) + 1;
+
+      if (draft.phases) {
+        for (const phase of draft.phases) {
+          const phaseTask = phase.tasks.find((candidate: Task) => candidate.id === taskId);
+          if (phaseTask) {
+            phaseTask.retry_count = task.retry_count;
+          }
+        }
+      }
+    });
+  }
+
   public updateTaskStatus(taskId: string, status: TaskStatus, error?: string): void {
     this.updateState((draft: OrchestrationState) => {
       const task = draft.tasks.find((t: Task) => t.id === taskId);
@@ -69,7 +103,7 @@ export class TaskStore {
         const now = Date.now();
         if (status === 'running' && !task.start_time) {
           task.start_time = now;
-        } else if (['completed', 'failed'].includes(status) && !task.end_time) {
+        } else if (['completed', 'failed', 'blocked'].includes(status) && !task.end_time) {
           task.end_time = now;
         }
       }
@@ -98,6 +132,7 @@ export class TaskStore {
         task.status = status;
         task.output = report;
         task.end_time = now;
+        task.artifacts = report.artifacts;
       }
 
       if (draft.phases) {
@@ -107,6 +142,7 @@ export class TaskStore {
             phaseTask.status = status;
             phaseTask.output = report;
             phaseTask.end_time = now;
+            phaseTask.artifacts = report.artifacts;
           }
         }
       }

@@ -4,7 +4,7 @@ import * as path from 'path';
 export class SkillFactory {
   private skillsDir: string;
 
-  constructor(workspaceRoot: string = '/home/mdhaarith/nexus-enterprise') {
+  constructor(workspaceRoot: string = process.cwd()) {
     this.skillsDir = path.join(workspaceRoot, 'skills');
   }
 
@@ -23,26 +23,25 @@ export class SkillFactory {
 
     const skillFilePath = path.join(skillDirPath, 'SKILL.md');
 
-    const content = `# ${name} Skill
+    const content = `---
+name: ${skillDirName}
+description: ${requirements.trim()}
+---
 
-## Overview
-This skill was automatically generated to address the following requirements:
-${requirements}
+# ${name}
 
-## Core Capabilities
-- **Custom Capability**: Generated based on requirements.
-- **Integration**: Seamlessly integrates with existing workflows.
+## Intent
+${requirements.trim()}
 
-## Tools & Frameworks
-- **Tooling**: To be determined based on specific needs.
-- **Frameworks**: Utilizes standard project frameworks.
+## Workflow
+1. Explore existing patterns in the workspace before adding new abstractions.
+2. Reuse established Nexus commands, agents, and memory records where possible.
+3. Keep instructions concise and move detailed references into a dedicated \`reference/\` folder if this skill grows.
 
-## Best Practices
-- **Standardization**: Follow project conventions.
-- **Documentation**: Keep this skill document updated as the skill evolves.
-
-## Troubleshooting
-- **General**: Check logs and error messages.
+## Deliverables
+- Concrete steps or heuristics for the target capability.
+- Required tool and validation expectations.
+- Integration points for downstream Nexus agents.
 `;
 
     fs.writeFileSync(skillFilePath, content, 'utf-8');

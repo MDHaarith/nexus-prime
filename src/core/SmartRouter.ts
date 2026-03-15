@@ -1,95 +1,154 @@
-import { Task } from '../types/index.js';
+import { Task, RegistrySnapshot } from '../types/index.js';
 import { Logger } from './Logger.js';
 import { execSync } from 'child_process';
 
 export enum ModelTier {
+  LITE = 'gemini-3.1-flash-lite',
   FLASH = 'gemini-3.1-flash',
   PRO = 'gemini-3.1-pro-preview'
 }
 
+export interface RoutingDecision {
+  tier: ModelTier;
+  agentId: string;
+  reason: string;
+  isSpecialized: boolean;
+}
+
 export class SmartRouter {
-  private static readonly PRO_KEYWORDS = [
-    'design', 'architect', 'security', 'complex', 'refactor', 'strategy', 'evaluate'
+  private static readonly CRITICAL_KEYWORDS = [
+    'security', 'auth', 'encryption', 'architecture', 'scalability', 'privacy', 'production', 'deploy', 'database', 'schema'
   ];
+  
+  private static readonly LITE_KEYWORDS = [
+    'typo', 'rename', 'format', 'lint', 'comment', 'readme', 'metadata', 'summarize'
+  ];
+
   private logger = Logger.getInstance();
-  private classificationCache: Map<string, ModelTier> = new Map();
+  private decisionCache: Map<string, RoutingDecision> = new Map();
+  private readonly enableGeminiClassifier: boolean;
 
-  /**
-   * Determines the appropriate model tier for a given task.
-   * Routes to Pro for complex/architectural tasks, otherwise defaults to Flash.
-   */
-  public routeTask(task: Task): ModelTier {
-    const startTime = Date.now();
-    
-    // Check explicit metadata if available (O(1))
-    if (task.input?.requiresPro) {
-      this.logger.info(`Routing task ${task.id} to Pro (explicit metadata)`, { taskId: task.id });
-      return ModelTier.PRO;
-    }
-
-    // Check agent type (O(1))
-    const proAgents = ['architect', 'security_auditor', 'nexus_prime'];
-    if (proAgents.includes(task.agent)) {
-      this.logger.info(`Routing task ${task.id} to Pro (agent: ${task.agent})`, { taskId: task.id });
-      return ModelTier.PRO;
-    }
-
-    // Check cache
-    const cacheKey = `${task.agent}:${task.name}:${task.description}`;
-    if (this.classificationCache.has(cacheKey)) {
-        return this.classificationCache.get(cacheKey)!;
-    }
-
-    // LLM-based classification (Gemini Flash)
-    const tier = this.classifyWithFlash(task);
-    
-    this.classificationCache.set(cacheKey, tier);
-    this.logger.metric('routing_latency', Date.now() - startTime, { taskId: task.id, tier });
-    
-    return tier;
+  constructor(
+    private readonly registry: RegistrySnapshot,
+    enableGeminiClassifier: boolean = process.env.NEXUS_ENABLE_GEMINI_CLASSIFIER === '1'
+  ) {
+    this.enableGeminiClassifier = enableGeminiClassifier;
   }
 
   /**
-   * Uses Gemini Flash to classify the task complexity.
+   * Performs an autonomous routing decision, potentially refining the agent and selecting the optimal model tier.
    */
-  private classifyWithFlash(task: Task): ModelTier {
-    try {
-      const prompt = `Classify the following task as either 'FLASH' (standard/simple) or 'PRO' (complex/architectural/security-sensitive).
-      
-      Task Name: ${task.name}
-      Agent: ${task.agent}
-      Description: ${task.description}
-      
-      Response format: Just the word FLASH or PRO.`;
+  public route(task: Task): RoutingDecision {
+    const startTime = Date.now();
+    const cacheKey = `${task.agent}:${task.name}:${task.description}`;
 
-      // Use the gemini CLI to get a classification
-      // We use a short timeout and gemini-3.1-flash for speed
-      const result = execSync(`gemini --model gemini-3.1-flash -p "${prompt.replace(/"/g, '\\"')}"`, { 
-        encoding: 'utf-8',
-        timeout: 5000 
-      }).trim().toUpperCase();
-
-      if (result.includes('PRO')) {
-        this.logger.info(`Routing task ${task.id} to Pro (Gemini Flash classification)`, { taskId: task.id });
-        return ModelTier.PRO;
-      }
-    } catch (error) {
-      this.logger.warn(`Gemini Flash classification failed for task ${task.id}. Falling back to keyword logic.`, { 
-        taskId: task.id,
-        error: error instanceof Error ? error.message : String(error)
-      });
+    if (this.decisionCache.has(cacheKey)) {
+      return this.decisionCache.get(cacheKey)!;
     }
 
-    // Fallback: Keyword-based routing
-    const textToAnalyze = `${task.name} ${task.description}`.toLowerCase();
-    for (const keyword of SmartRouter.PRO_KEYWORDS) {
-      if (textToAnalyze.includes(keyword)) {
-        this.logger.info(`Routing task ${task.id} to Pro (Keyword Fallback: ${keyword})`, { taskId: task.id });
-        return ModelTier.PRO;
+    // 1. Specialist Refinement (Semantic Match)
+    const refinedAgentId = this.refineAgent(task);
+    const isSpecialized = refinedAgentId !== task.agent;
+
+    // 2. Tier Selection (FinOps & Quality Aware)
+    const tier = this.selectTier(task, refinedAgentId, isSpecialized);
+
+    const decision: RoutingDecision = {
+      tier,
+      agentId: refinedAgentId,
+      reason: isSpecialized 
+        ? `Upgraded to specialist ${refinedAgentId} for improved output quality.`
+        : `Routed to core agent ${refinedAgentId} with ${tier} tier.`,
+      isSpecialized
+    };
+
+    this.decisionCache.set(cacheKey, decision);
+    this.logger.metric('routing_latency', Date.now() - startTime, { taskId: task.id, tier: decision.tier });
+    
+    return decision;
+  }
+
+  /**
+   * Refines the agent selection by searching the native specialist roster.
+   */
+  private refineAgent(task: Task): string {
+    const textToMatch = `${task.name} ${task.description}`.toLowerCase();
+    
+    // Search for highly specific specialists first
+    const candidates = this.registry.agents
+      .filter(a => a.source === 'nexus-specialist')
+      .map(a => ({
+        id: a.id,
+        score: this.calculateMatchScore(textToMatch, a.id, a.description, a.capabilities)
+      }))
+      .filter(c => c.score > 0.7) // Increased threshold for higher precision
+      .sort((a, b) => b.score - a.score);
+
+    if (candidates.length > 0) {
+      // If we have multiple candidates with the same score, pick the one that matches more ID tokens
+      this.logger.info(`Specialist Match: ${candidates[0].id} (Score: ${candidates[0].score.toFixed(2)})`, { taskId: task.id });
+      return candidates[0].id;
+    }
+
+    return task.agent;
+  }
+
+  private calculateMatchScore(taskText: string, agentId: string, description: string, capabilities: string[]): number {
+    const idParts = agentId.replace(/nexus-/, '').split('-');
+    const descText = description.toLowerCase();
+    
+    let score = 0;
+    
+    // ID Matches (High Weight)
+    for (const part of idParts) {
+      if (part.length > 3 && taskText.includes(part)) {
+        score += 3;
+      }
+    }
+    
+    // Capability Matches (Medium Weight)
+    for (const cap of capabilities) {
+      if (taskText.includes(cap.toLowerCase())) {
+        score += 2;
+      }
+    }
+    
+    // Description Matches (Low Weight)
+    const descTokens = descText.split(/\s+/);
+    for (const token of descTokens) {
+      if (token.length > 4 && taskText.includes(token)) {
+        score += 0.5;
       }
     }
 
-    this.logger.info(`Routing task ${task.id} to Flash (default)`, { taskId: task.id });
+    return score / 5; // Normalized
+  }
+
+  /**
+   * Selects the optimal model tier based on task criticality and agent specialization.
+   */
+  private selectTier(task: Task, agentId: string, isSpecialized: boolean): ModelTier {
+    const text = `${task.name} ${task.description}`.toLowerCase();
+
+    // PRO Tier: Critical infrastructure, complex architecture, or security
+    if (SmartRouter.CRITICAL_KEYWORDS.some(k => text.includes(k)) || task.input?.requiresPro) {
+      return ModelTier.PRO;
+    }
+
+    // LITE Tier: Trivial maintenance or metadata tasks (only if not specialized to a high-value agent)
+    const isTrivial = SmartRouter.LITE_KEYWORDS.some(k => text.includes(k));
+    if (isTrivial && !isSpecialized) {
+      return ModelTier.LITE;
+    }
+
+    // Default to FLASH for standard work
     return ModelTier.FLASH;
+  }
+
+  /**
+   * Legacy shim for compatibility with older components
+   */
+  public routeTask(task: Task): ModelTier {
+    return this.route(task).tier;
   }
 }

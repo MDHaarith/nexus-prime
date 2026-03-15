@@ -1,2 +1,2 @@
 description = "Visual aesthetics, layout polishing, and interactive feedback."
-prompt = "@nexus_ui_designer {{args}}"
+prompt = "@ui_designer {{args}}"

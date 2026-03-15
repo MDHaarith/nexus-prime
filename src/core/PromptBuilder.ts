@@ -8,9 +8,10 @@ export class PromptBuilder {
    * 
    * @param task The task to be executed.
    * @param recentHandoffs The sliding window of recent handoffs (up to 3).
+   * @param memoryContext Optional smart memory context retrieved before run.
    * @returns The constructed prompt string.
    */
-  public buildPrompt(task: Task, recentHandoffs: Handoff[]): string {
+  public buildPrompt(task: Task, recentHandoffs: Handoff[], memoryContext?: string): string {
     // Ensure we only use the last 3 handoffs as per the requirement
     const contextWindow = recentHandoffs.slice(-3);
     
@@ -23,6 +24,10 @@ export class PromptBuilder {
       prompt += `  <input_parameters>\n${JSON.stringify(task.input, null, 2)}\n  </input_parameters>\n`;
     }
     prompt += `</task>\n\n`;
+
+    if (memoryContext) {
+      prompt += `<smart_memory>\n${memoryContext}\n</smart_memory>\n\n`;
+    }
 
     prompt += `<context>\n`;
     if (contextWindow.length > 0) {

@@ -1,12 +1,15 @@
 {
   "name": "nexus-prime",
-  "version": "4.0.19",
-  "description": "Unified Ink (Pro) architecture for Nexus-Prime",
+  "version": "4.1.0",
+  "description": "Nexus-Prime 4.1.0 with Nexus Memory, Nexus Design Suite, and Nexus Specialist Packs",
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.tsx",
     "build": "esbuild src/index.tsx --bundle --platform=node --format=esm --outfile=dist/index.js",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "node --import tsx --test tests/**/*.test.ts",
+    "memory:bootstrap": "tsx src/scripts/bootstrap-memory.ts",
+    "export:artifacts": "tsx src/scripts/export-artifacts.ts"
   },
   "dependencies": {
     "immer": "^10.0.3",

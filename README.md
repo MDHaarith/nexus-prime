@@ -1,161 +1,150 @@
-# Nexus-Prime: The Autonomous Multi-Agent Framework
+# Nexus-Prime 4.1.0
 
-[![Version](https://img.shields.io/badge/version-4.0.19-blue.svg)](https://github.com/MDHaarith/nexus-prime)
+[![Version](https://img.shields.io/badge/version-4.1.0-blue.svg)](https://github.com/MDHaarith/nexus-prime)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Nexus-Prime is a cutting-edge, high-performance orchestration framework designed to automate complex software engineering workflows. Built on a unified Node.js/TypeScript core, it manages a specialized swarm of **28 domain-expert agents** that collaborate through a deterministic 12-phase execution pipeline.
+Nexus-Prime 4.1.0 is a native multi-agent orchestration platform. All capabilities are deeply embedded as core features:
 
-By combining a reactive **Ink (React) CLI** with an intelligent **Execution Bus**, Nexus-Prime provides a professional-grade environment where AI agents can research, plan, implement, and verify tasks with unprecedented precision and cost-efficiency.
+- `Nexus Context Engine`: Native tiered context database with recursive retrieval and session compression.
+- `Nexus Design Suite`: Native UI orchestration with Bold Aesthetic and AI Slop Test protocols.
+- `Nexus Specialists`: 120+ first-class specialized agents natively integrated into the core roster.
 
----
+The runtime is a real 4-phase orchestration flow: `Design -> Plan -> Execute -> Complete`.
 
-## 🌟 Key Features
+## What's New
 
-- **Flash-First Model Tiering**: Defaulting to Gemini 3.1 Flash for maximum speed and cost-efficiency, with automated upgrades to Gemini 3.1 Pro for complex architectural and security tasks.
-- **3-Handoff Sliding Window**: A high-efficiency execution bus that maintains a focused context window of the last 3 task handoffs, preventing token bloat and reducing latency.
-- **Reactive Ink UI**: A modern, interactive CLI built with React and Ink, featuring real-time progress tracking, task logs, and a dedicated interactivity gate for user input.
-- **28 Domain Experts**: A comprehensive swarm of specialized agents covering everything from API design and cloud architecture to security auditing and performance engineering.
-- **Interactivity First**: A core mandate that ensures agents always ask for clarification when encountering ambiguity, keeping the system perfectly aligned with user intent.
-- **O(1) Efficiency**: Optimized performance path using pre-mapped dependencies and byte-counting context management.
+- **Ambient Memory**: The Nexus Context Engine now performs "smart prerunning" context lookups before every task, injecting relevant history automatically.
+- **Unified UI Agent**: The native `@ui_designer` now manages the full Nexus Design Suite via an interactive menu and specialized `--skill` routing.
+- **Native Specialist Roster**: All specialized agents (Marketing, Spatial Computing, etc.) are now first-class citizens in the `agents/specialists/` directory.
+- **Elite Architecture**: Upgraded core agents for Architecture, Data, DevOps, and Validation with premium, evidence-based protocols.
 
----
+## Native Subsystems
 
-## 🏗️ Architecture
+### Nexus Memory
 
-Nexus-Prime leverages a sophisticated multi-layered architecture to ensure reliability and scalability in autonomous workflows.
+`Nexus Memory` is the persistence and discovery layer for the runtime. It stores session snapshots, handoff history, indexed commands, indexed skills, and assimilated specialist pack metadata under `.nexus/`.
 
-```mermaid
-graph TD
-    User[User] --> CLI[CLIApp Ink/React]
-    CLI --> Orchestrator[Orchestrator Core]
-    Orchestrator --> TaskStore[Task Store Immer]
-    TaskStore --> SmartRouter[Smart Router]
-    
-    SmartRouter -- Complex Task --> Pro[Gemini 3.1 Pro]
-    SmartRouter -- Standard Task --> Flash[Gemini 3.1 Flash]
-    
-    Pro --> ExecutionBus[Execution Bus]
-    Flash --> ExecutionBus
-    
-    ExecutionBus -- Sliding Window --> Agent[Specialized Agent]
-    Agent -- ask_user --> Gate[Interactivity Gate]
-    Gate --> CLI
-```
+Public command surface:
 
-### Core Components
+- `memory.status`
+- `memory.search`
+- `memory.sessions`
+- `memory.resources`
+- `memory.skills`
 
-| Component | Description |
-|-----------|-------------|
-| **Orchestrator** | The brain of the system. It breaks down high-level objectives into actionable phases and delegates them to specialized agents. |
-| **TaskStore** | An immutable state management system powered by **Immer**. It tracks the status, results, and history of every task in the session. |
-| **ExecutionBus** | The communication layer that manages agent dispatch, context pruning (8k limit), and result collection. |
-| **SmartRouter** | An intelligent routing engine that selects the optimal model (Flash vs Pro) based on task complexity using LLM classification. |
-| **SkillFactory** | A dynamic generator that assembles agent capabilities from modular skill definitions. |
+The public UX stays Nexus-branded. Vendored internals remain in-repo for attribution and deeper future bridging, but they are not exposed as product-facing names.
 
----
+### Nexus Design Suite
 
-## 🛠️ Built-in Skills
+`Nexus Design Suite` replaces the old thin UI prompt with a richer design system and steering workflow.
 
-Nexus-Prime comes pre-equipped with a modular library of **Specialized Skills**. These skills provide the underlying logic and best practices that agents use to execute their tasks.
+Included command pack:
 
-### Core Capability Skills
-- **Automated Documentation**: Native ability to generate OpenAPI/Swagger specs, JSDoc/TypeDoc references, and maintain synchronized READMEs.
-- **CI/CD Integration**: Pre-configured workflows for GitHub Actions, Jenkins, and Docker-based deployment automation.
-- **Performance Optimization**: Advanced profiling, database query analysis, and multi-level caching strategies (Redis/CDN).
-- **Web Scraping**: High-fidelity extraction using Playwright/Puppeteer for dynamic content and Cheerio for static parsing.
-- **Code Investigation**: Deep AST-based mapping and dependency analysis for large-scale architecture recovery.
+- `design.adapt`
+- `design.animate`
+- `design.audit`
+- `design.bolder`
+- `design.clarify`
+- `design.colorize`
+- `design.critique`
+- `design.delight`
+- `design.distill`
+- `design.extract`
+- `design.harden`
+- `design.normalize`
+- `design.onboard`
+- `design.optimize`
+- `design.polish`
+- `design.quieter`
+- `design.teach`
 
-### Agent-Specific Skills
-Each of the 28 agents has a dedicated skill definition (e.g., `nexus-architect/SKILL.md`) that defines its unique methodology:
-- **Architect Skill**: High-level component design and pattern selection.
-- **Security Skill**: Vulnerability scanning and secure coding enforcement.
-- **Tester Skill**: Comprehensive unit and E2E test implementation using Vitest.
-- **SRE Skill**: Reliability monitoring and incident response procedures.
+The design skill now lives in [`skills/nexus-design-suite/SKILL.md`](skills/nexus-design-suite/SKILL.md) with Nexus-owned reference guides for typography, color, spacing, motion, interaction, responsive behavior, and UX writing.
 
----
+### Nexus Specialist Packs
 
-## 🤖 The Agent Swarm
+`Nexus Specialist Packs` assimilate the broader specialist catalog and expose it through the Nexus registry and export pipeline.
 
-Nexus-Prime features 28 specialized autonomous agents, each a domain expert in a specific area of the software development lifecycle.
+Curated core replacements now upgrade these default roles:
 
-| Agent | Role | Core Expertise |
-|-------|------|----------------|
-| **nexus-api-designer** | API Architect | OpenAPI/Swagger, REST/GraphQL design, API documentation. |
-| **nexus-architect** | System Designer | High-level architecture, component diagrams, design patterns. |
-| **nexus-cli-help** | CLI Specialist | Command-line interface design, help text, and usage guides. |
-| **nexus-cloud-architect** | Cloud Expert | AWS/GCP/Azure infrastructure, serverless, and containerization. |
-| **nexus-codebase-investigator** | Code Analyst | Deep-dive analysis of large codebases, pattern discovery. |
-| **nexus-coder** | Lead Developer | Feature implementation, bug fixes, and code optimization. |
-| **nexus-copywriter** | Content Creator | Technical writing, marketing copy, and brand voice. |
-| **nexus-data-engineer** | Data Architect | ETL pipelines, data modeling, and big data processing. |
-| **nexus-database-admin** | DB Specialist | Schema design, query optimization, and migration scripts. |
-| **nexus-debugger** | Bug Hunter | Root cause analysis, stack trace debugging, and hotfixing. |
-| **nexus-devops-engineer** | CI/CD Expert | GitHub Actions, Jenkins, Docker, and deployment automation. |
-| **nexus-evolution-agent** | Self-Improver | System refactoring, tool updates, and autonomous upgrades. |
-| **nexus-generalist** | Versatile Assistant | General-purpose tasks, research, and coordination. |
-| **nexus-huggingface-skills** | AI Integrator | Hugging Face Transformers, datasets, and model deployment. |
-| **nexus-ml-engineer** | ML Specialist | Model training, evaluation, and inference optimization. |
-| **nexus-nexus-prime** | Lead Orchestrator | Project management, phase planning, and agent delegation. |
-| **nexus-orchestrator-manager** | Logic Architect | Orchestration engine maintenance and strategy updates. |
-| **nexus-performance-engineer** | Perf Specialist | Benchmarking, profiling, and latency reduction. |
-| **nexus-qa-engineer** | Quality Lead | Test strategy, test case design, and bug reporting. |
-| **nexus-refactor** | Debt Reducer | Code cleanup, modularization, and technical debt removal. |
-| **nexus-security-auditor** | Security Reviewer | Vulnerability scanning, penetration testing, and audits. |
-| **nexus-security-engineer** | Security Builder | Encryption, authentication, and secure coding practices. |
-| **nexus-seo-specialist** | SEO Expert | Search engine optimization, metadata, and web performance. |
-| **nexus-sre-engineer** | Reliability Lead | Monitoring, alerting, and incident response procedures. |
-| **nexus-technical-writer** | Doc Specialist | READMEs, API docs, runbooks, and changelogs. |
-| **nexus-tester** | Test Implementer | Unit, integration, and E2E test development (Vitest). |
-| **nexus-ui-designer** | UI/UX Designer | Component design, styling, and user experience optimization. |
-| **nexus-validation-agent** | Compliance Lead | Final verification, linting, and standard enforcement. |
+- `architect`
+- `data_engineer`
+- `database_admin`
+- `devops_engineer`
+- `ml_engineer`
+- `technical_writer`
+- `performance_engineer`
+- `security_engineer`
+- `validation_agent`
+- `ui_designer`
 
----
+The wider catalog remains available through the registry and provider exports without bloating the default scheduler surface.
 
-## 🛠️ Installation
+## Runtime Model
 
-To install Nexus-Prime as a Gemini CLI extension, run:
+The Nexus runtime now follows four public phases:
+
+1. `Design`
+2. `Plan`
+3. `Execute`
+4. `Complete`
+
+Core runtime pieces:
+
+- `src/runtime/createRuntime.ts`: bootstraps config, registry, persistence, memory, and controller
+- `src/runtime/controller.ts`: executes the 4-phase run, handles retries, persists state, and records memory
+- `src/runtime/registry.ts`: canonical registry for commands, agents, skills, design suite, and specialist packs
+- `src/runtime/memory.ts`: built-in memory index and search
+- `src/runtime/exporter.ts`: Nexus-branded provider export bundles
+
+Execution modes:
+
+- Default local mode is deterministic so the runtime can be tested and validated without external dependencies
+- Set `NEXUS_EXECUTOR_MODE=gemini-cli` to use the Gemini CLI adapter when `gemini` is installed and on `PATH`
+
+## Install And Run
 
 ```bash
-gemini extension install https://github.com/MDHaarith/nexus-prime
+npm install
+npm run type-check
+npm run test
+npm run build
 ```
 
----
-
-## 🤝 Contributing
-
-We welcome contributions to the Nexus-Prime framework! To maintain high quality, we follow a strict **12-Phase Deterministic Workflow**.
-
-### The 12-Phase Workflow
-1. **Design**: Requirements, Architecture, Convergence.
-2. **Plan**: Component Analysis, Agent Assignment, Dependency Mapping.
-3. **Execute**: Implementation, Testing, Refactoring.
-4. **Complete**: Security Audit, Documentation, Final Validation.
-
-### Interactivity First Mandate
-All contributors must adhere to the **Interactivity First** mandate. If a task is ambiguous or requires a critical decision:
-- **Do NOT guess.**
-- **Use the `ask_user` tool.**
-- Wait for user confirmation before proceeding.
-
-### Development Standards
-- **Tech Stack**: Node.js v20+, TypeScript (strict), Ink (React), Immer.
-- **Testing**: We aim for 100% coverage on core logic using **Vitest**.
-- **Performance**: Startup latency must remain <30ms.
+Optional utilities:
 
 ```bash
-npm install             # Install dependencies
-npm run build           # Build production bundle (esbuild)
-npm run type-check      # Verify type safety (tsc)
+npm run memory:bootstrap
+npm run export:artifacts
 ```
 
----
+Environment variables:
 
-## 📊 Performance Metrics
-- **Startup Latency**: <30ms (optimized Node.js bundle).
-- **Test Coverage**: 100% statement, line, and function coverage confirmed.
-- **Accuracy**: LLM-driven smart routing with O(1) state transitions.
+- `NEXUS_STATE_DIR`: override `.nexus` storage root
+- `NEXUS_EXECUTION_MODE`: `sequential` or `parallel`
+- `NEXUS_EXECUTOR_MODE`: `deterministic` or `gemini-cli`
+- `NEXUS_EXPORT_TARGETS`: comma-separated provider list
+- `NEXUS_MEMORY_BACKEND`: backend label reported by Nexus Memory
+- `NEXUS_OBJECTIVE`: runtime objective text
 
----
+## Testing
 
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Root test coverage now validates:
+
+- runtime config parsing
+- canonical registry loading
+- structured handoff parsing
+- Nexus Memory indexing and search
+- provider export bundle generation
+- end-to-end 4-phase controller execution with persistence and archiving
+
+Run:
+
+```bash
+npm run test
+```
+
+## Attribution
+
+Public UX, docs, commands, and config are Nexus-branded in 4.1.0.
+
+Attribution for the assimilated vendored sources lives in [`NOTICES.md`](NOTICES.md).

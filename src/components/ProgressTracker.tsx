@@ -23,12 +23,19 @@ export function ProgressTracker({ state }: ProgressTrackerProps) {
             if (phase.status === 'completed') statusColor = 'green';
             if (phase.status === 'running') statusColor = 'yellow';
             if (phase.status === 'failed') statusColor = 'red';
+            const completedTasks = phase.tasks.filter((task) => task.status === 'completed').length;
 
             return (
-              <Box key={phase.id} flexDirection="row">
-                <Text color="white">{prefix} </Text>
-                <Text color={statusColor}>
-                  Phase {index + 1}: {phase.name} [{phase.status}]
+              <Box key={phase.id} flexDirection="column" marginBottom={1}>
+                <Box flexDirection="row">
+                  <Text color="white">{prefix} </Text>
+                  <Text color={statusColor}>
+                    Phase {index + 1}: {phase.name} [{phase.status}]
+                  </Text>
+                </Box>
+                <Text dimColor>
+                  Tasks: {completedTasks}/{phase.tasks.length}
+                  {phase.objective ? ` · ${phase.objective}` : ''}
                 </Text>
               </Box>
             );

@@ -7,7 +7,7 @@ export class StatePruner {
   private maxSizeInBytes: number;
 
   constructor(
-    workspaceRoot: string = '/home/mdhaarith/nexus-enterprise',
+    workspaceRoot: string = process.cwd(),
     maxSizeInBytes: number = 1024 * 512 // 512KB default
   ) {
     this.stateDir = path.join(workspaceRoot, '.nexus', 'state');
