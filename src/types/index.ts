@@ -6,6 +6,25 @@ export interface TokenUsage {
   cached?: number;
 }
 
+export interface ValidationMetrics {
+  cost: number;
+  input_tokens: number;
+  output_tokens: number;
+  cache_tokens: number;
+  quality_score: number;
+  latency_ms: number;
+}
+
+export interface ComparativeMetrics {
+  current: ValidationMetrics;
+  baseline?: ValidationMetrics;
+  deltas: {
+    cost: number;
+    usage: number;
+    quality: number;
+  };
+}
+
 export interface TaskReport {
   status: 'success' | 'partial' | 'failure';
   objective_achieved: string;
@@ -13,7 +32,7 @@ export interface TaskReport {
   files_modified: string[];
   files_deleted: string[];
   decisions_made: string[];
-  validation: 'pass' | 'fail' | 'skipped';
+  validation?: ValidationMetrics | 'pass' | 'fail' | 'skipped';
   validation_output?: string;
   errors: string[];
   scope_deviations: string[];
@@ -59,9 +78,34 @@ export interface Phase {
 
 export interface OrchestrationState {
   session_id: string;
+  task?: string;
+  status?: 'idle' | 'running' | 'completed' | 'failed';
   current_phase: string;
   tasks: Task[];
   phases?: Phase[];
   metadata: Record<string, any>;
   execution_mode?: 'parallel' | 'sequential';
+  comparison?: ComparativeMetrics;
 }
+
+export interface QuestionOption {
+  label: string;
+  description: string;
+}
+
+export interface Question {
+  question: string;
+  header: string;
+  type: 'choice' | 'text' | 'yesno';
+  options?: QuestionOption[];
+  multiSelect?: boolean;
+  placeholder?: string;
+}
+
+export interface AskUserPayload {
+  questions: Question[];
+}
+
+export type UserAnswer = string | string[] | boolean | null;
+
+export type PromptHandler = (payload: AskUserPayload) => Promise<UserAnswer[]>;

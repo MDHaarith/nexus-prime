@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { OrchestrationState, Task, TaskStatus, TaskReport, Phase } from '../types/index.js';
+import { OrchestrationState, Task, TaskStatus, TaskReport, Phase, ComparativeMetrics } from '../types/index.js';
 
 export type StateListener = (state: OrchestrationState) => void;
 
@@ -133,6 +133,30 @@ export class TaskStore {
           phase.status = status;
         }
       }
+    });
+  }
+
+  public setGlobalStatus(status: 'idle' | 'running' | 'completed' | 'failed'): void {
+    this.updateState((draft: OrchestrationState) => {
+      draft.status = status;
+    });
+  }
+
+  public setTask(task: string): void {
+    this.updateState((draft: OrchestrationState) => {
+      draft.task = task;
+    });
+  }
+
+  public setExecutionMode(mode: 'parallel' | 'sequential'): void {
+    this.updateState((draft: OrchestrationState) => {
+      draft.execution_mode = mode;
+    });
+  }
+
+  public setComparison(comparison: ComparativeMetrics): void {
+    this.updateState((draft: OrchestrationState) => {
+      draft.comparison = comparison;
     });
   }
 }

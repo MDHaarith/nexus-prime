@@ -1,2 +1,2 @@
 description = "Master 4-Phase Autonomous Pipeline (Design → Plan → Execute → Complete)"
-prompt = "@nexus_orchestrator {{args}}"
+prompt = "@orchestrator {{args}}"

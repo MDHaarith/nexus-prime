@@ -1,12 +1,13 @@
 {
   "name": "nexus-prime",
-  "version": "4.0.19",
+  "version": "4.1.0",
   "description": "Unified Ink (Pro) architecture for Nexus-Prime",
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.tsx",
     "build": "esbuild src/index.tsx --bundle --platform=node --format=esm --outfile=dist/index.js",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "tsx --test"
   },
   "dependencies": {
     "immer": "^10.0.3",

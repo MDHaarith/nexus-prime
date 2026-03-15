@@ -1,6 +1,7 @@
 import { Task, Handoff } from '../types/index.js';
 import { TaskStore } from './TaskStore.js';
 import { Logger } from './Logger.js';
+import { ValidationEngine } from '../validator/index.js';
 
 export type AgentExecutor = (task: Task, contextWindow: Handoff[]) => Promise<Handoff>;
 
@@ -71,6 +72,18 @@ export class ExecutionBus {
       
       if (resultHandoff.report.token_usage) {
         this.logger.tokens(task.id, resultHandoff.report.token_usage);
+      }
+      
+      // Validate task and get comparison
+      const validationEngine = ValidationEngine.getInstance();
+      const { taskMetrics, comparison } = validationEngine.validateTask(task, resultHandoff.report, duration);
+      
+      // Attach metrics to report
+      resultHandoff.report.validation = taskMetrics;
+      
+      // Update global session deltas
+      if (this.taskStore.setComparison) {
+        this.taskStore.setComparison(comparison);
       }
       
       // Update task with results

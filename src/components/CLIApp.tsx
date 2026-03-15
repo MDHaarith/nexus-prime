@@ -2,69 +2,77 @@ import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import { ProgressTracker } from './ProgressTracker.js';
 import { TaskLogs } from './TaskLogs.js';
-import { QuestionOverlay, Question } from './QuestionOverlay.js';
-import type { OrchestrationState, Task, Phase } from '../types/index.js';
+import { QuestionOverlay } from './QuestionOverlay.js';
+import { ValidationDashboard } from '../validator/index.js';
+import type { OrchestrationState, AskUserPayload, UserAnswer } from '../types/index.js';
+import { TaskStore } from '../core/TaskStore.js';
+import { InteractivityGate } from '../core/InteractivityGate.js';
 
-const mockPhases: Phase[] = [
-  { id: 'p1', name: 'Initialization', status: 'completed', tasks: [] },
-  { id: 'p2', name: 'UI Framework Design', status: 'running', tasks: [] },
-  { id: 'p3', name: 'Implementation', status: 'pending', tasks: [] },
-];
+export interface CLIAppProps {
+  store: TaskStore;
+  gate: InteractivityGate;
+}
 
-const mockTask: Task = {
-  id: 't1',
-  name: 'Build Reactive CLI',
-  agent: 'ui_designer',
-  description: 'Create the Ink and React UI components.',
-  status: 'running',
-  dependencies: []
-};
-
-const mockLogs = [
-  '[System] Initializing Nexus-Enterprise Workspace...',
-  '[Orchestrator] Starting session 2026-03-11-nexus-enterprise-upgrade',
-  '[ui_designer] Analyzing requirements for CLIApp.tsx',
-  '[ui_designer] Generating React component for TaskLogs.tsx',
-  '[ui_designer] Validating type definitions against src/types/index.ts',
-];
-
-export function CLIApp() {
-  const [state, setState] = useState<OrchestrationState>({
-    session_id: 'session-1',
-    current_phase: 'p2',
-    tasks: [mockTask],
-    phases: mockPhases,
-    metadata: {}
-  });
-
-  const [logs, setLogs] = useState<string[]>(mockLogs);
-  const [question, setQuestion] = useState<Question | null>({
-    id: 'q1',
-    agent: 'ui_designer',
-    text: 'Do you want to enable debug mode for the CLI overlay?'
-  });
-
-  const handleAnswerSubmit = (answer: string) => {
-    setLogs((prev) => [...prev, `[User] Answered: ${answer}`, `[ui_designer] Resuming task...`]);
-    setQuestion(null); // Clear the question
-  };
+export function CLIApp({ store, gate }: CLIAppProps) {
+  const [state, setState] = useState<OrchestrationState>(store.getState());
+  const [logs, setLogs] = useState<string[]>([]);
+  
+  const [activePrompt, setActivePrompt] = useState<{
+    payload: AskUserPayload;
+    resolve: (answers: UserAnswer[]) => void;
+  } | null>(null);
 
   useEffect(() => {
-    // Simulate incoming logs if no question is pending
-    if (question) return;
+    const unsubscribe = store.subscribe((newState) => {
+      setState(newState);
+    });
+    return () => unsubscribe();
+  }, [store]);
 
-    const timer = setInterval(() => {
-      setLogs((prev) => [...prev, `[System] Background process heartbeat at ${new Date().toLocaleTimeString()}`]);
-    }, 3000);
+  useEffect(() => {
+    gate.setPromptHandler((payload: AskUserPayload) => {
+      return new Promise<UserAnswer[]>((resolve) => {
+        setActivePrompt({ payload, resolve });
+      });
+    });
+  }, [gate]);
 
-    return () => clearInterval(timer);
-  }, [question]);
+  useEffect(() => {
+    const originalLog = console.log;
+    const originalError = console.error;
+    
+    console.log = (...args: any[]) => {
+      const msg = args.map(a => typeof a === 'string' ? a : JSON.stringify(a)).join(' ');
+      setLogs(prev => [...prev.slice(-49), msg]);
+    };
+    
+    console.error = (...args: any[]) => {
+      const msg = args.map(a => typeof a === 'string' ? a : JSON.stringify(a)).join(' ');
+      setLogs(prev => [...prev.slice(-49), `[ERROR] ${msg}`]);
+    };
+    
+    return () => {
+      console.log = originalLog;
+      console.error = originalError;
+    };
+  }, []);
+
+  const handleAnswersSubmit = (answers: UserAnswer[]) => {
+    if (activePrompt) {
+      activePrompt.resolve(answers);
+      setActivePrompt(null);
+    }
+  };
+
+  const activeTask = state.tasks?.find(t => t.status === 'running') || 
+                     state.tasks?.[state.tasks.length - 1] || 
+                     null;
 
   return (
     <Box flexDirection="column" minHeight={20} width={80}>
       <Box paddingX={1} marginBottom={1}>
         <Text bold color="white" backgroundColor="blue"> Nexus-Enterprise CLI </Text>
-        <Text dimColor> v4.0.0</Text>
+        <Text dimColor> v4.1.0</Text>
       </Box>
 
       <Box flexDirection="row" flexGrow={1}>
@@ -72,14 +80,19 @@ export function CLIApp() {
           <ProgressTracker state={state} />
         </Box>
         <Box width="65%">
-          <TaskLogs task={state.tasks[0] || null} logs={logs} />
+          <TaskLogs task={activeTask} logs={logs} />
         </Box>
       </Box>
 
-      {/* If there's an active question, render the overlay prominently below */}
-      {question ? (
+      {state.comparison && (
+        <Box marginTop={1} paddingX={1}>
+          <ValidationDashboard comparison={state.comparison} />
+        </Box>
+      )}
+
+      {activePrompt ? (
         <Box marginTop={1}>
-           <QuestionOverlay question={question} onSubmit={handleAnswerSubmit} />
+           <QuestionOverlay payload={activePrompt.payload} onSubmit={handleAnswersSubmit} />
         </Box>
       ) : (
         <Box marginTop={1} paddingX={1}>

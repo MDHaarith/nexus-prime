@@ -1,9 +1,9 @@
 # Nexus-Prime: The Autonomous Multi-Agent Framework
 
-[![Version](https://img.shields.io/badge/version-4.0.19-blue.svg)](https://github.com/MDHaarith/nexus-prime)
+[![Version](https://img.shields.io/badge/version-4.1.0-blue.svg)](https://github.com/MDHaarith/nexus-prime)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Nexus-Prime is a cutting-edge, high-performance orchestration framework designed to automate complex software engineering workflows. Built on a unified Node.js/TypeScript core, it manages a specialized swarm of **28 domain-expert agents** that collaborate through a deterministic 12-phase execution pipeline.
+Nexus-Prime is a cutting-edge, high-performance orchestration framework designed to automate complex software engineering workflows. Built on a unified Node.js/TypeScript core, it manages a specialized swarm of **28 domain-expert agents** that collaborate through a deterministic **4-phase state machine**.
 
 By combining a reactive **Ink (React) CLI** with an intelligent **Execution Bus**, Nexus-Prime provides a professional-grade environment where AI agents can research, plan, implement, and verify tasks with unprecedented precision and cost-efficiency.
 
@@ -11,24 +11,34 @@ By combining a reactive **Ink (React) CLI** with an intelligent **Execution Bus*
 
 ## 🌟 Key Features
 
+- **State-Machine Orchestration**: A robust 4-phase engine (DESIGN, PLAN, EXECUTE, COMPLETE) that ensures deterministic transitions and reliable task execution.
+- **Mandatory QA Gates**: Automated quality assurance reviews for every implementation task, enforced by the `qa_engineer` agent.
 - **Flash-First Model Tiering**: Defaulting to Gemini 3.1 Flash for maximum speed and cost-efficiency, with automated upgrades to Gemini 3.1 Pro for complex architectural and security tasks.
 - **3-Handoff Sliding Window**: A high-efficiency execution bus that maintains a focused context window of the last 3 task handoffs, preventing token bloat and reducing latency.
 - **Reactive Ink UI**: A modern, interactive CLI built with React and Ink, featuring real-time progress tracking, task logs, and a dedicated interactivity gate for user input.
 - **28 Domain Experts**: A comprehensive swarm of specialized agents covering everything from API design and cloud architecture to security auditing and performance engineering.
-- **Interactivity First**: A core mandate that ensures agents always ask for clarification when encountering ambiguity, keeping the system perfectly aligned with user intent.
+- **Interactivity First**: A core mandate that ensures agents always ask for clarification when encountering ambiguity via the **InteractivityGate**.
 - **O(1) Efficiency**: Optimized performance path using pre-mapped dependencies and byte-counting context management.
 
 ---
 
 ## 🏗️ Architecture
 
-Nexus-Prime leverages a sophisticated multi-layered architecture to ensure reliability and scalability in autonomous workflows.
+Nexus-Prime leverages a sophisticated state-machine-driven architecture to ensure reliability and scalability in autonomous workflows.
 
 ```mermaid
 graph TD
     User[User] --> CLI[CLIApp Ink/React]
     CLI --> Orchestrator[Orchestrator Core]
-    Orchestrator --> TaskStore[Task Store Immer]
+    
+    subgraph StateMachine [4-Phase State Machine]
+        DESIGN[DESIGN] --> PLAN[PLAN]
+        PLAN --> EXECUTE[EXECUTE]
+        EXECUTE --> COMPLETE[COMPLETE]
+    end
+    
+    Orchestrator --> StateMachine
+    EXECUTE --> TaskStore[Task Store Immer]
     TaskStore --> SmartRouter[Smart Router]
     
     SmartRouter -- Complex Task --> Pro[Gemini 3.1 Pro]
@@ -40,16 +50,21 @@ graph TD
     ExecutionBus -- Sliding Window --> Agent[Specialized Agent]
     Agent -- ask_user --> Gate[Interactivity Gate]
     Gate --> CLI
+    
+    Agent -- Task Finished --> QA[QA Gate: qa_engineer]
+    QA -- Pass --> NextTask[Next Task]
 ```
 
 ### Core Components
 
 | Component | Description |
 |-----------|-------------|
-| **Orchestrator** | The brain of the system. It breaks down high-level objectives into actionable phases and delegates them to specialized agents. |
-| **TaskStore** | An immutable state management system powered by **Immer**. It tracks the status, results, and history of every task in the session. |
+| **Orchestrator** | The state machine engine. It manages transitions between **DESIGN**, **PLAN**, **EXECUTE**, and **COMPLETE** phases. |
+| **InteractivityGate** | A blocking mechanism that pauses execution when an agent requires user input, ensuring human-in-the-loop alignment. |
+| **QA Gates** | Mandatory review cycles where the `qa_engineer` validates the output of every implementation task before downstream tasks proceed. |
+| **TaskStore** | An immutable state management system powered by **Immer**. It tracks the status, results, and history of every task. |
 | **ExecutionBus** | The communication layer that manages agent dispatch, context pruning (8k limit), and result collection. |
-| **SmartRouter** | An intelligent routing engine that selects the optimal model (Flash vs Pro) based on task complexity using LLM classification. |
+| **SmartRouter** | An intelligent routing engine that selects the optimal model (Flash vs Pro) based on task complexity. |
 | **SkillFactory** | A dynamic generator that assembles agent capabilities from modular skill definitions. |
 
 ---
@@ -98,7 +113,7 @@ Nexus-Prime features 28 specialized autonomous agents, each a domain expert in a
 | **nexus-nexus-prime** | Lead Orchestrator | Project management, phase planning, and agent delegation. |
 | **nexus-orchestrator-manager** | Logic Architect | Orchestration engine maintenance and strategy updates. |
 | **nexus-performance-engineer** | Perf Specialist | Benchmarking, profiling, and latency reduction. |
-| **nexus-qa-engineer** | Quality Lead | Test strategy, test case design, and bug reporting. |
+| **nexus-qa-engineer** | Quality Lead | Mandatory QA gates, test strategy, and bug reporting. |
 | **nexus-refactor** | Debt Reducer | Code cleanup, modularization, and technical debt removal. |
 | **nexus-security-auditor** | Security Reviewer | Vulnerability scanning, penetration testing, and audits. |
 | **nexus-security-engineer** | Security Builder | Encryption, authentication, and secure coding practices. |
@@ -123,19 +138,19 @@ gemini extension install https://github.com/MDHaarith/nexus-prime
 
 ## 🤝 Contributing
 
-We welcome contributions to the Nexus-Prime framework! To maintain high quality, we follow a strict **12-Phase Deterministic Workflow**.
+We welcome contributions to the Nexus-Prime framework! To maintain high quality, we follow a strict **4-Phase State Machine Workflow**.
 
-### The 12-Phase Workflow
-1. **Design**: Requirements, Architecture, Convergence.
-2. **Plan**: Component Analysis, Agent Assignment, Dependency Mapping.
-3. **Execute**: Implementation, Testing, Refactoring.
-4. **Complete**: Security Audit, Documentation, Final Validation.
+### The 4-Phase Workflow
+1. **DESIGN**: Requirements gathering, architectural convergence, and initial feasibility analysis.
+2. **PLAN**: Component breakdown, agent assignment, and dependency mapping.
+3. **EXECUTE**: Implementation of tasks with mandatory QA gates and real-time progress tracking.
+4. **COMPLETE**: Final validation, documentation synchronization, and session cleanup.
 
 ### Interactivity First Mandate
 All contributors must adhere to the **Interactivity First** mandate. If a task is ambiguous or requires a critical decision:
 - **Do NOT guess.**
 - **Use the `ask_user` tool.**
-- Wait for user confirmation before proceeding.
+- The **InteractivityGate** will pause execution until the user provides confirmation.
 
 ### Development Standards
 - **Tech Stack**: Node.js v20+, TypeScript (strict), Ink (React), Immer.
